@@ -20,7 +20,39 @@ def getChar (name):
         url = 'http://' + region + '.battle.net/api/wow/character/' + server + '/' + name + '?fields=items'
         response = urllib2.urlopen(url)
         json_profile = json.load(response)
-        print >> f, '%-20s ==> %20s' % (json_profile['name'], str(json_profile['items']['averageItemLevel']))
+        has_ring = json_profile['items']['finger1']['itemLevel'] == 680 or json_profile['items']['finger2']['itemLevel'] == 680
+        has_ring = has_ring and 'Yes' or 'No'
+        missing = ''
+
+        try:
+            neck = json_profile['items']['neck']['tooltipParams']['enchant']
+        except KeyError:
+            missing = missing + 'Neck, '
+
+        try:
+            back = json_profile['items']['back']['tooltipParams']['enchant']
+        except KeyError:
+            missing = missing + 'Cloak, '
+
+        try:
+            ring1 = json_profile['items']['finger1']['tooltipParams']['enchant']
+        except KeyError:
+            missing = missing + 'Ring 1, '
+
+        try:
+            ring2 = json_profile['items']['finger2']['tooltipParams']['enchant']
+        except KeyError:
+            missing = missing + 'Ring 2, '
+
+        try:
+            mh = json_profile['items']['mainHand']['tooltipParams']['enchant']
+        except KeyError:
+            missing = missing + 'Main Hand'
+
+        if not missing:
+           missing = 'None'
+
+        print >>f, '%-20s ==> %10s; 680 Ring: %s; Missing Enchants: %s' % (json_profile['name'], str(json_profile['items']['averageItemLevelEquipped']), has_ring, missing)
 
 print >> f,  "Tanks\n"
 
